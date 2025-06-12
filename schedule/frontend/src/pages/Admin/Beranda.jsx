@@ -25,37 +25,41 @@ const Beranda = () => {
   const [jumlahChat, setJumlahChat] = useState(0);
 
   useEffect(() => {
-  const fetchDashboardData = async () => {
-    try {
-      const [jadwalRes, mediaRes, penggunaRes, chatRes] = await Promise.all([
-        fetch('http://localhost:5000/api/schedules'),
-        fetch('http://localhost:5000/api/media'),
-        fetch('http://localhost:5000/api/admin'),
-        fetch('http://localhost:5000/api/chats')
-      ]);
+    const fetchDashboardData = async () => {
+      try {
+        const [jadwalRes, mediaRes, penggunaRes, chatRes] = await Promise.all([
+          fetch('http://localhost:5000/api/schedules'),
+          fetch('http://localhost:5000/api/media'),
+          fetch('http://localhost:5000/api/admin'),
+          fetch('http://localhost:5000/api/chats')
+        ]);
 
-      const jadwalData = await jadwalRes.json();
-      const mediaData = await mediaRes.json();
-      const penggunaData = await penggunaRes.json();
-      const chatData = await chatRes.json();
+        const jadwalData = await jadwalRes.json();
+        const mediaData = await mediaRes.json();
+        const penggunaData = await penggunaRes.json();
+        const chatData = await chatRes.json();
 
-      setJumlahJadwal(jadwalData.length || 0);
-      setJumlahMedia(mediaData.length || 0);
-      setJumlahPengguna(penggunaData.length || 0);
+        setJumlahJadwal(Array.isArray(jadwalData) ? jadwalData.length : 0);
+        setJumlahMedia(Array.isArray(mediaData) ? mediaData.length : 0);
+        setJumlahPengguna(Array.isArray(penggunaData) ? penggunaData.length : 0);
 
-      // Perhitungan total pesan dari semua chat
-      const totalMessages = chatData.reduce((sum, chat) => sum + (chat.messages?.length || 0), 0);
-      setJumlahChat(totalMessages);
-      
-    } catch (error) {
-      console.error('Gagal mengambil data dashboard:', error);
-    }
-  };
+        // Perhitungan total pesan dari chat
+        const messages = chatData?.messages || [];
+        setJumlahChat(messages.length);
+        
+      } catch (error) {
+        console.error('Gagal mengambil data dashboard:', error);
+        // Set default values when there's an error
+        setJumlahJadwal(0);
+        setJumlahMedia(0);
+        setJumlahPengguna(0);
+        setJumlahChat(0);
+      }
+    };
 
-  fetchDashboardData();
-}, []);
+    fetchDashboardData();
+  }, []);
 
-  
   const chartData = {
     labels: ['Jadwal', 'Media', 'Pengguna', 'Chat'],
     datasets: [

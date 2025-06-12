@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -18,7 +17,7 @@ import {
 
 const Home = () => {
   const [jadwal, setJadwal] = useState([]);
-  const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
+  const [contactForm, setContactForm] = useState({ name: "", email: "", message: "", phone: "" });
   const [submitStatus, setSubmitStatus] = useState("");
   const [showJadwal, setShowJadwal] = useState(false);
   const [showForm, setShowForm] = useState(false); // <- ini untuk form interaksi jemaat
@@ -76,14 +75,20 @@ const Home = () => {
       const response = await fetch("http://localhost:5000/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(contactForm),
+        body: JSON.stringify({
+          nama: contactForm.name,
+          email: contactForm.email,
+          pesan: contactForm.message,
+          phone: contactForm.phone
+        }),
       });
 
       if (response.ok) {
         setSubmitStatus("Pesan berhasil dikirim!");
-        setContactForm({ name: "", email: "", message: "" });
+        setContactForm({ name: "", email: "", message: "", phone: "" });
       } else {
-        setSubmitStatus("Gagal mengirim pesan, coba lagi.");
+        const errorData = await response.json();
+        setSubmitStatus(errorData.message || "Gagal mengirim pesan, coba lagi.");
       }
     } catch (error) {
       console.error("Error submitting contact form:", error);
@@ -199,7 +204,7 @@ const Home = () => {
           {/* Interaksi Jemaat */}
           <div className="w-full md:w-96 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer">
             <FaComments className="text-blue-500 text-5xl mx-auto mb-6" />
-            <h3 className="text-xl font-semibold mb-4">Interaksi Jemaat</h3>
+            <h3 className="text-xl font-semibold mb-4">Kirim Pesan</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Kirim pesan atau pertanyaan ke admin.
             </p>
@@ -230,6 +235,17 @@ const Home = () => {
                     value={contactForm.email}
                     onChange={handleChange}
                     required
+                    className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Nomor HP"
+                    value={contactForm.phone}
+                    onChange={handleChange}
+                    required
+                    pattern="[0-9]{10,13}"
+                    title="Masukkan nomor HP yang valid (10-13 digit)"
                     className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                   />
                   <textarea

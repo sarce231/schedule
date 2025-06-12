@@ -6,14 +6,14 @@ const router = express.Router();
 // POST simpan pesan dari form Home (bisa dari user belum terdaftar)
 router.post("/messages", async (req, res) => {
   try {
-    const { nama, email, pesan } = req.body;
+    const { nama, email, pesan, phone } = req.body;
 
     // Validasi sederhana di backend (optional tapi direkomendasikan)
-    if (!nama || !email || !pesan) {
-      return res.status(400).json({ message: "Nama, email, dan pesan wajib diisi" });
+    if (!nama || !email || !pesan || !phone) {
+      return res.status(400).json({ message: "Nama, email, pesan, dan nomor telepon wajib diisi" });
     }
 
-    const newMessage = new Message({ nama, email, pesan });
+    const newMessage = new Message({ nama, email, pesan, phone });
     await newMessage.save();
 
     res.status(201).json({ message: "Pesan berhasil dikirim" });
